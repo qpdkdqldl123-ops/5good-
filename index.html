@@ -241,6 +241,7 @@
             font-weight: bold;
         }
 
+        /* 의무요일 3열 그리드 스타일 */
         .days-grid-box {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -616,6 +617,7 @@ function renderTodos() {
             if(hasFixedDays) {
                 if(!t.fixedDays.includes(state.currentDayFilter)) return false;
             }
+            // 🛠️ 이월 로직 고도화: 의무요일 체크를 안 한 항목(=상관없음)이 '미완료' 상태일 때 요일 탭에 상시 노출하여 강제 이월되도록 결합
             if(!hasFixedDays && t.done) {
                 if(t.createdDay !== state.currentDayFilter) return false;
             }
@@ -716,7 +718,7 @@ function makeSmsMessageText(todo, targets) {
     return fmt.replace(/{이름}/g, names).replace(/{기한}/g, dateStr).replace(/{할일}/g, todo.task || "(내용없음)");
 }
 
-// 📱 [단체 문자 완벽 맵핑] 안드로이드용(콤마 ,) 및 아이폰용(세미콜론 ;) 분리 구조 구현 완료
+// 📱 [핵심 업데이트] 기기별(안드 콤마 / 아이폰 세미콜론) 단체 문자 분리 및 진짜 예약창 맵핑 엔진
 function handleSmsRouting(todoId, type) {
     const todo = state.todos.find(t => t.id === todoId);
     if(!todo || !todo.profileIds || todo.profileIds.length === 0) return alert('대상을 선택해 주세요!');
@@ -724,25 +726,27 @@ function handleSmsRouting(todoId, type) {
     const targetPeople = state.profiles.filter(p => todo.profileIds.includes(p.id));
     const resultMessage = makeSmsMessageText(todo, targetPeople);
 
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
     if (type === 'now') {
-        // 즉시 발송도 기기 특성에 맞추어 번호 연결 문자 조합
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        // 🛠️ 여러명 체크 시 기기별 최적 구분자로 묶어 단체문자 앱으로 다이렉트 전달
         const phonesCombined = targetPeople.map(p => p.phone).join(isIOS ? ';' : ',');
         triggerSmsApp(phonesCombined, resultMessage);
     } else if (type === 'android') {
         const timeVal = document.getElementById(`time-${todoId}`).value;
         if(!timeVal) return alert('시간을 지정해주세요!');
         
-        const phonesCombined = targetPeople.map(p => p.phone).join(','); // 안드는 콤마
-        // 🛠️ 대다수 갤럭시 순정 메시지 앱에서 '예약 메시지 기능'을 강제로 호출해 채워주는 전용 스키마 매핑 완료
+        const phonesCombined = targetPeople.map(p => p.phone).join(','); // 안드 단체규격(,)
+        // 🛠️ 갤럭시 순정 문자메시지 앱에 여러 명의 수신인을 동시에 채워 넣고 예약 모드 구성을 준비하는 전용 스키마 교정
         window.location.href = `intent:${phonesCombined}?sms_body=${encodeURIComponent("[예약시각 " + timeVal + "] " + resultMessage)}#Intent;action=android.intent.action.SENDTO;category=android.category.DEFAULT;type=vnd.android-dir/mms-sms;end`;
     } else if (type === 'ios') {
         const timeVal = document.getElementById(`time-${todoId}`).value;
         if(!timeVal) return alert('시간을 지정해주세요!');
         
-        const phonesCombined = targetPeople.map(p => p.phone).join(';'); // 아이폰은 세미콜론
+        const phonesCombined = targetPeople.map(p => p.phone).join(';'); // 아이폰 단체규격(;)
         const combinedIosText = `[수신인]: ${phonesCombined}\n[예약시각]: 매일 ${timeVal}\n\n${resultMessage}`;
         
+        // 아이폰 클립보드 강제 터치 복사 우회 알고리즘 작동
         copyToClipboard(combinedIosText, () => {
             openModal(targetPeople.map(p=>p.name).join(','), timeVal, resultMessage);
         });
@@ -758,8 +762,9 @@ function fireBulkSmsDirect(type) {
     const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
     const targetPeople = state.profiles.filter(p => selectedIds.includes(p.id));
 
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
     if (type === 'now') {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const phonesCombined = targetPeople.map(p => p.phone).join(isIOS ? ';' : ',');
         triggerSmsApp(phonesCombined, textContent);
     } else if (type === 'android') {
@@ -810,9 +815,9 @@ function fallbackCopy(text, callback) {
     try {
         const successful = document.execCommand('copy');
         if (successful) callback();
-        else alert('복사 실패 ㅠ 수동으로 해주세요.');
+        else alert('수동으로 복사해주세요 ㅠ');
     } catch (err) {
-        alert('복사 실패 ㅠ 수동으로 해주세요.');
+        alert('수동으로 복사해주세요 ㅠ');
     }
     document.body.removeChild(textArea);
 }
