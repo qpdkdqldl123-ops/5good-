@@ -134,7 +134,7 @@
             max-height: 95px; overflow-y: auto; border: 2px solid #ebd9cc; padding: 6px; border-radius: 14px; background: #fffdfb; box-sizing: border-box;
         }
         .item-checkbox-label { display: flex; align-items: center; gap: 4px; font-size: 11px; margin-bottom: 4px; cursor: pointer; white-space: nowrap; }
-        input[type="checkbox"] { accent-color: #ff9aa2; transform: scale(1.1); cursor: pointer; }
+        .item-checkbox-label input[type="checkbox"] { accent-color: #ff9aa2; transform: scale(1.1); cursor: pointer; }
 
         .days-grid-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; width: 150px; box-sizing: border-box; }
         .day-checkbox-label { display: inline-flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; background: #fffdfa; padding: 3px 1px; border-radius: 6px; border: 1px solid #ebd9cc; font-weight: bold; }
@@ -162,24 +162,33 @@
 
 <div class="container">
     <div class="title-container">
-        <div style="display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap;">
-            <input type="text" id="checklist-title-input" style="font-size: 18px; font-weight: bold; width: 320px; text-align: center; border-radius: 20px;" placeholder="체크리스트 제목 입력" oninput="saveTitleDirect(this.value)">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="checklist-title-input" style="font-size: 18px; font-weight: bold; width: 320px; text-align: center; border-radius: 20px;" placeholder="체크리스트 제목 입력">
+            <button class="btn-action" style="background-color: #65534c; font-size: 12px; height: 38px;" onclick="saveTitleDirect()">💾 제목 영구 저장</button>
         </div>
     </div>
 
     <div class="cute-card">
         <h3>✉️ 자동 고정 재촉 문자 양식 세팅</h3>
-        <div style="display: flex; flex-direction: column; width: 100%;">
-            <input type="text" id="sms-template-input" style="width: 100%;" placeholder="양식을 지정해주세요." oninput="saveSmsTemplateDirect(this.value)">
+        <div style="display: flex; flex-direction: column; width: 100%; gap: 6px;">
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="sms-template-input" style="flex-grow: 1;" placeholder="양식을 지정해주세요.">
+                <button class="btn-action" style="background-color: #ff9aa2; font-size: 11px;" onclick="saveSmsTemplateDirect()">💾 양식 영구 저장</button>
+            </div>
             <div class="sms-saved-display-box" id="sms-template-display">📋 [현재 저장된 양식 내용]: 불러오는 중...</div>
+            <div class="sms-saved-display-box" id="sms-template-preview" style="background: #fdfbee; border-color: #e2d2c1; color: #a18376;">💬 [실제 발송 예시]: 로딩 중...</div>
         </div>
     </div>
 
     <div class="cute-card">
         <h3>📱 금일 할일 리스트 문자 양식 세팅</h3>
-        <div style="display: flex; flex-direction: column; width: 100%;">
-            <input type="text" id="sms-today-template-input" style="width: 100%;" placeholder="금일 할일 양식을 지정해주세요." oninput="saveSmsTodayTemplateDirect(this.value)">
+        <div style="display: flex; flex-direction: column; width: 100%; gap: 6px;">
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="sms-today-template-input" style="flex-grow: 1;" placeholder="금일 할일 양식을 지정해주세요.">
+                <button class="btn-action" style="background-color: #ff9aa2; font-size: 11px;" onclick="saveSmsTodayTemplateDirect()">💾 양식 영구 저장</button>
+            </div>
             <div class="sms-saved-display-box" id="sms-today-template-display">📋 [현재 저장된 양식 내용]: 불러오는 중...</div>
+            <div class="sms-saved-display-box" id="sms-today-template-preview" style="background: #fdfbee; border-color: #e2d2c1; color: #a18376;">💬 [실제 발송 예시]: 로딩 중...</div>
         </div>
     </div>
 
@@ -217,7 +226,7 @@
     <div class="cute-card" style="background:#fff9f9;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-wrap: wrap;">
             <div>
-                <h3>👤 주소록 명단 등록 (꾹~ 끌어서 예쁘게 1개씩 이동)</h3>
+                <h3>👤 주소록 명단 등록 (클릭 시 이름 수정 가능 ✏️)</h3>
                 <div style="display: flex; gap: 6px; margin-bottom: 10px;">
                     <input type="text" id="new-profile-name" placeholder="이름" style="width:70px; flex-grow:1;">
                     <input type="text" id="new-profile-phone" placeholder="번호(숫자만)" style="width:110px; flex-grow:2;">
@@ -225,9 +234,10 @@
                 </div>
                 <div class="name-manage-list" id="name-manage-list" style="display:flex; gap:6px; flex-wrap:wrap; min-height:50px; padding:6px; border:2px dashed #ffccd5; border-radius:16px; background:#fffbfb;" ondragover="allowDrop(event)" ondrop="dropProfile(event)"></div>
             </div>
-            <div style="border-left: 2px dashed #f6ece2; padding-left: 15px;">
+            <div style="border-left: 2px dashed #f6ece2; padding-left: 15px; display: flex; flex-direction: column;">
                 <h3>🌟 사명자 all 파일 세팅 (그룹원 지정)</h3>
-                <div class="checkbox-scroll-box" id="all-group-setup-box" style="max-height: 120px;"></div>
+                <div class="checkbox-scroll-box" id="all-group-setup-box" style="flex-grow: 1; max-height: 90px; margin-bottom: 6px;"></div>
+                <button class="btn-action" style="background-color: #bae1ff; color: #1e3a8a; font-size: 11px; height: 32px; width: 100%;" onclick="saveAllGroupSetupDirect()">💾 그룹원 구성 영구 저장</button>
             </div>
         </div>
     </div>
@@ -268,15 +278,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// 4번 피드백: 우선순위 배경 구분이 아주 명확하도록 고대비 파스텔 색상으로 최적 보정
 const priorityColors = {
-    1: '#ffb3ba', // 1순위: 핑크
-    2: '#ffdfba', // 2순위: 오렌지
-    3: '#ffffba', // 3순위: 노랑
-    4: '#baffc9', // 4순위: 연두
-    5: '#bae1ff'  // 5순위: 소다하늘
+    1: '#ffa6b9', // 1우선순위: 눈에 확 띄는 선명한 핑크
+    2: '#ffca85', // 2우선순위: 진한 귤색 오렌지
+    3: '#fff980', // 3우선순위: 밝은 레몬 노랑
+    4: '#9effb7', // 4우선순위: 선명한 민트 그린
+    5: '#99d6ff'  // 5우선순위: 청량한 소다 블루
 };
 
-// 🛠️ 초기 시작 시 빈칸 방지를 위한 기본값 완전 고정 매핑
 let state = {
     title: "5구역 할 수 있다. 하나 된다. 하나님 도와주신다. 회피하지마.",
     smsTemplate: "[5구역 알림] {이름}님, 안내해 드립니다. 기한 {기한}까지 예정된 [{할일}] 미완료 상태입니다. 빠른 확인 부탁드립니다!",
@@ -292,13 +302,19 @@ let state = {
 let draggedProfileId = null;
 let activeTimers = {}; 
 
-window.onload = function() {
-    // DB에서 데이터가 날아오기 전에 화면에 기본 세팅 텍스트부터 먼저 채워 보여줌
-    document.getElementById('checklist-title-input').value = state.title;
-    document.getElementById('sms-template-input').value = state.smsTemplate;
-    document.getElementById('sms-today-template-input').value = state.smsTodayTemplate;
-    showSavedTemplatesText();
+let renderTimer = null;
+let isUpdatingLocally = false; 
+let delayTimers = {}; // 3번 피드백: 칸 이동 제어용 5초 세션 타이머 객체
 
+function requestRenderTodos() {
+    if (isUpdatingLocally) return; 
+    if (renderTimer) clearTimeout(renderTimer);
+    renderTimer = setTimeout(() => {
+        renderTodos();
+    }, 50); 
+}
+
+window.onload = function() {
     const todayWeek = getCurrentDayOfWeek();
     state.currentDayFilter = todayWeek;
     const activeDayBtn = document.getElementById(`filter-day-${todayWeek}`);
@@ -311,17 +327,14 @@ window.onload = function() {
             state.smsTemplate = data.smsTemplate !== undefined ? data.smsTemplate : state.smsTemplate;
             state.smsTodayTemplate = data.smsTodayTemplate !== undefined ? data.smsTodayTemplate : state.smsTodayTemplate;
             state.allGroupIds = data.allGroupIds || [];
-        } else {
-            uploadConfig(); 
         }
-        // DB 응답 후 실제 데이터로 업데이트 바인딩
         document.getElementById('checklist-title-input').value = state.title;
         document.getElementById('sms-template-input').value = state.smsTemplate;
         document.getElementById('sms-today-template-input').value = state.smsTodayTemplate;
         
         showSavedTemplatesText(); 
         renderAllGroupSetup();
-        renderTodos();
+        requestRenderTodos();
     });
 
     db.collection("profiles").onSnapshot((snapshot) => {
@@ -332,46 +345,79 @@ window.onload = function() {
         renderProfiles();
         renderProfilesFilter();
         renderAllGroupSetup();
-        renderTodos();
+        requestRenderTodos();
     });
 
     db.collection("todos").onSnapshot((snapshot) => {
-        state.todos = [];
-        snapshot.forEach(doc => state.todos.push({id: doc.id, ...doc.data()}));
+        let tempTodos = [];
+        snapshot.forEach(doc => tempTodos.push({id: doc.id, ...doc.data()}));
+        
+        if (isUpdatingLocally) {
+            tempTodos.forEach(remoteTodo => {
+                const localTodo = state.todos.find(l => l.id === remoteTodo.id);
+                if (localTodo) {
+                    remoteTodo.profileIds = localTodo.profileIds;
+                    remoteTodo.checkedProfileIds = localTodo.checkedProfileIds;
+                    remoteTodo.part = localTodo.part;
+                    remoteTodo.priority = localTodo.priority;
+                    remoteTodo.fixedDays = localTodo.fixedDays;
+                }
+            });
+        }
+        
+        state.todos = tempTodos;
         checkAndCleanOldTodos();
-        renderTodos();
+        requestRenderTodos();
     });
 };
 
+// 2번 피드백: 현재 저장된 양식 디스플레이 및 실제 전송 예시 문구 동적 결합 출력 구현
 function showSavedTemplatesText() {
     document.getElementById('sms-template-display').innerText = "📋 [현재 저장된 양식 내용]: " + (state.smsTemplate || "(비어 있음)");
     document.getElementById('sms-today-template-display').innerText = "📋 [현재 저장된 양식 내용]: " + (state.smsTodayTemplate || "(비어 있음)");
+
+    let preview1 = (state.smsTemplate || "")
+        .replace(/{이름}/g, "홍길동")
+        .replace(/{기한}/g, "12:00")
+        .replace(/{할일}/g, "전도 대상자 명단 확인 및 문자 발송");
+    document.getElementById('sms-template-preview').innerText = "💬 [실제 발송 예시]: " + preview1;
+
+    let preview2 = (state.smsTodayTemplate || "")
+        .replace(/{이름}/g, "홍길동") + "\n1. [전도 구역 모임 참석] /\n2. [새가족 심방 가이드 체크] /";
+    document.getElementById('sms-today-template-preview').innerText = "💬 [실제 발송 예시]:\n" + preview2;
 }
 
-function uploadConfig() {
-    db.collection("config").doc("mainState").set({
-        title: state.title,
-        smsTemplate: state.smsTemplate,
-        smsTodayTemplate: state.smsTodayTemplate,
-        allGroupIds: state.allGroupIds
+// 개별 요소 명시적 독립 영구 저장 버튼 바인딩 함수들
+function saveTitleDirect() {
+    const val = document.getElementById('checklist-title-input').value;
+    state.title = val;
+    db.collection("config").doc("mainState").update({ title: state.title }).then(() => {
+        alert('체크리스트 제목이 영구 저장되었습니다! 🧸');
     });
 }
 
-function saveTitleDirect(val) {
-    state.title = val;
-    db.collection("config").doc("mainState").update({ title: state.title });
-}
-
-function saveSmsTemplateDirect(val) {
+function saveSmsTemplateDirect() {
+    const val = document.getElementById('sms-template-input').value;
     state.smsTemplate = val;
-    db.collection("config").doc("mainState").update({ smsTemplate: state.smsTemplate });
-    showSavedTemplatesText(); 
+    db.collection("config").doc("mainState").update({ smsTemplate: state.smsTemplate }).then(() => {
+        showSavedTemplatesText();
+        alert('재촉 문자 양식이 파이어베이스 백엔드에 안전하게 고정 저장되었습니다! ✉️');
+    });
 }
 
-function saveSmsTodayTemplateDirect(val) {
+function saveSmsTodayTemplateDirect() {
+    const val = document.getElementById('sms-today-template-input').value;
     state.smsTodayTemplate = val;
-    db.collection("config").doc("mainState").update({ smsTodayTemplate: state.smsTodayTemplate });
-    showSavedTemplatesText(); 
+    db.collection("config").doc("mainState").update({ smsTodayTemplate: state.smsTodayTemplate }).then(() => {
+        showSavedTemplatesText();
+        alert('금일 할 일 리스트 문자 양식이 안전하게 고정 저장되었습니다! 📱');
+    });
+}
+
+function saveAllGroupSetupDirect() {
+    db.collection("config").doc("mainState").update({ allGroupIds: state.allGroupIds }).then(() => {
+        alert('🌟 사명자 all 파일 세팅(그룹원 지정 현황)이 안정적으로 영구 저장되었습니다!');
+    });
 }
 
 function renderProfilesFilter() {
@@ -406,11 +452,45 @@ function renderProfiles() {
     state.profiles.forEach((p) => {
         listDiv.innerHTML += `
             <div class="draggable-tag" draggable="true" data-id="${p.id}" ondragstart="dragProfileStart(event)" ondragend="dragProfileEnd(event)" ondragover="allowDrop(event)">
-                <strong>${p.name}</strong>
+                <strong onclick="makeProfileEditable(this, '${p.id}')" style="cursor:pointer; text-decoration:underline; decoration-style:dotted;">${p.name}</strong>
                 <button style="border:none; background:none; color:#ff6b6b; font-weight:bold; cursor:pointer;" onclick="deleteProfile('${p.id}')">×</button>
             </div>
         `;
     });
+}
+
+function makeProfileEditable(element, id) {
+    const currentName = element.innerText;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentName;
+    input.style.width = '60px';
+    input.style.height = '20px';
+    input.style.fontSize = '11px';
+    input.style.padding = '2px';
+    
+    input.onblur = function() {
+        saveProfileNameEdit(id, this.value, element);
+    };
+    
+    input.onkeydown = function(e) {
+        if(e.key === 'Enter') {
+            saveProfileNameEdit(id, this.value, element);
+        }
+    };
+    
+    element.parentNode.replaceChild(input, element);
+    input.focus();
+    input.select();
+}
+
+async function saveProfileNameEdit(id, newName, originalElement) {
+    if(!newName.trim()) {
+        alert('이름을 공백으로 둘 수 없습니다.');
+        renderProfiles();
+        return;
+    }
+    await db.collection("profiles").doc(id).update({ name: newName.trim() });
 }
 
 function dragProfileStart(e) {
@@ -459,22 +539,26 @@ function toggleAllGroupMember(profileId, checked) {
     } else {
         state.allGroupIds = state.allGroupIds.filter(id => id !== profileId);
     }
-    uploadConfig();
 }
 
 async function addNewRow() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     
+    let initialProfileIds = [];
+    if (state.currentNameFilter !== '전체') {
+        initialProfileIds.push(state.currentNameFilter);
+    }
+    
     await db.collection("todos").add({
         done: false,
         part: '전도',
-        profileIds: [],       
+        profileIds: initialProfileIds,       
         checkedProfileIds: [], 
         dueDateTime: now.toISOString().slice(0, 16),
         task: '',
-        priority: 5,
-        bgColor: '#bae1ff',
+        priority: 1,           
+        bgColor: '#ffa6b9',    
         fixedDays: [],
         createdDay: getCurrentDayOfWeek(),
         timestamp: Date.now()
@@ -485,22 +569,67 @@ async function deleteTodo(id) {
     if(activeTimers[id]) { clearInterval(activeTimers[id].interval); delete activeTimers[id]; }
     await db.collection("todos").doc(id).delete();
 }
+
+// 3번 피드백: 파트(분류)를 수정할 때도 5초 동안 튕김 없이 행을 유지하도록 스크립트 결합
+async function changePartField(id, val) {
+    isUpdatingLocally = true;
+    const todo = state.todos.find(t => t.id === id);
+    if(todo) todo.part = val;
+    triggerDelayTimer(id); 
+    await db.collection("todos").doc(id).update({ part: val });
+    isUpdatingLocally = false;
+}
+
 async function updateTodoField(id, field, value) { await db.collection("todos").doc(id).update({ [field]: value }); }
 
 async function toggleTodoProfileSelection(todoId, profileId, checked) {
+    isUpdatingLocally = true; 
     const ref = db.collection("todos").doc(todoId);
     const todo = state.todos.find(t => t.id === todoId);
     if(!todo) return;
+
+    if (!todo.profileIds) todo.profileIds = [];
+    if (!todo.checkedProfileIds) todo.checkedProfileIds = [];
+
+    if (profileId === 'ALL_GROUP') {
+        state.profiles.forEach(p => {
+            const elAssigned = document.getElementById(`assign-${todoId}-${p.id}`);
+            const elDoneContainer = document.getElementById(`done-container-${todoId}-${p.id}`);
+            if (elAssigned) elAssigned.checked = checked;
+            
+            if (checked) {
+                if(!todo.profileIds.includes(p.id)) todo.profileIds.push(p.id);
+                if (elDoneContainer) {
+                    const isDoneChecked = todo.checkedProfileIds.includes(p.id) ? 'checked' : '';
+                    elDoneContainer.innerHTML = `<input type="checkbox" ${isDoneChecked} title="완료" onchange="handleTodoProfileDoneCheckbox('${todoId}', '${p.id}', this.checked)" style="margin-left:auto; accent-color: #4ade80;">`;
+                }
+            } else {
+                todo.profileIds = todo.profileIds.filter(pid => pid !== p.id);
+                todo.checkedProfileIds = todo.checkedProfileIds.filter(pid => pid !== p.id);
+                if (elDoneContainer) elDoneContainer.innerHTML = '';
+            }
+        });
+    } else {
+        const elDoneContainer = document.getElementById(`done-container-${todoId}-${profileId}`);
+        if(checked) {
+            if(!todo.profileIds.includes(profileId)) todo.profileIds.push(profileId);
+            if (elDoneContainer) {
+                elDoneContainer.innerHTML = `<input type="checkbox" title="완료" onchange="handleTodoProfileDoneCheckbox('${todoId}', '${profileId}', this.checked)" style="margin-left:auto; accent-color: #4ade80;">`;
+            }
+        } else {
+            todo.profileIds = todo.profileIds.filter(id => id !== profileId);
+            todo.checkedProfileIds = todo.checkedProfileIds.filter(id => id !== profileId);
+            if (elDoneContainer) elDoneContainer.innerHTML = '';
+        }
+    }
+
+    triggerDelayTimer(todoId); // 3번 피드백: 수신자 체크 해제 시 즉시 탈출 차단용 5초 락
 
     if (profileId === 'ALL_GROUP') {
         if (checked) {
             await ref.update({ profileIds: firebase.firestore.FieldValue.arrayUnion(...state.allGroupIds) });
         } else {
-            let currentProfiles = todo.profileIds || [];
-            let filteredProfiles = currentProfiles.filter(pid => !state.allGroupIds.includes(pid));
-            let currentChecked = todo.checkedProfileIds || [];
-            let filteredChecked = currentChecked.filter(pid => !state.allGroupIds.includes(pid));
-            await ref.update({ profileIds: filteredProfiles, checkedProfileIds: filteredChecked });
+            await ref.update({ profileIds: todo.profileIds, checkedProfileIds: todo.checkedProfileIds });
             handleRowCheckboxLogic(todoId);
         }
     } else {
@@ -514,16 +643,29 @@ async function toggleTodoProfileSelection(todoId, profileId, checked) {
             handleRowCheckboxLogic(todoId);
         }
     }
+    isUpdatingLocally = false;
 }
 
 async function handleTodoProfileDoneCheckbox(todoId, profileId, checked) {
+    isUpdatingLocally = true;
     const ref = db.collection("todos").doc(todoId);
+    const todo = state.todos.find(t => t.id === todoId);
+    if(!todo) return;
+
+    if (!todo.checkedProfileIds) todo.checkedProfileIds = [];
+    if(checked) {
+        if(!todo.checkedProfileIds.includes(profileId)) todo.checkedProfileIds.push(profileId);
+    } else {
+        todo.checkedProfileIds = todo.checkedProfileIds.filter(id => id !== profileId);
+    }
+
     if(checked) {
         await ref.update({ checkedProfileIds: firebase.firestore.FieldValue.arrayUnion(profileId) });
     } else {
         await ref.update({ checkedProfileIds: firebase.firestore.FieldValue.arrayRemove(profileId) });
     }
     handleRowCheckboxLogic(todoId);
+    isUpdatingLocally = false;
 }
 
 async function handleRowCheckboxLogic(todoId) {
@@ -550,7 +692,7 @@ async function handleRowCheckboxLogic(todoId) {
                 await db.collection("todos").doc(todoId).update({ done: false, doneTimestamp: firebase.firestore.FieldValue.delete() });
             }
         }
-    }, 250);
+    }, 150);
 }
 
 function startRowCountdown(todoId) {
@@ -611,12 +753,25 @@ function checkAndCleanOldTodos() {
     });
 }
 
-function changePriority(todoId, priorityVal) {
+// 1번 및 3번 피드백: 우선순위 실시간 동적 스위칭 색상 부여 제어 로직 및 5초 홀딩 락 연계
+async function changePriority(todoId, priorityVal) {
+    isUpdatingLocally = true;
     const pNum = parseInt(priorityVal);
-    db.collection("todos").doc(todoId).update({
+    const todo = state.todos.find(t => t.id === todoId);
+    if(todo) todo.priority = pNum;
+
+    triggerDelayTimer(todoId); // 3번 조건 피드백: 우선순위 클릭 변경 시 5초 홀딩 락
+
+    const targetRow = document.getElementById(`row-${todoId}`);
+    if (targetRow) {
+        targetRow.style.backgroundColor = priorityColors[pNum];
+    }
+
+    await db.collection("todos").doc(todoId).update({
         priority: pNum,
         bgColor: priorityColors[pNum]
     });
+    isUpdatingLocally = false;
 }
 
 function filterDay(day, btn) {
@@ -634,22 +789,52 @@ function filterPart(part, btn) {
 }
 
 async function updateTodoFixedDays(id, day, checked) {
+    isUpdatingLocally = true;
+    const todo = state.todos.find(t => t.id === id);
+    if(todo && !todo.fixedDays) todo.fixedDays = [];
+    
+    if(todo) {
+        if(checked) { if(!todo.fixedDays.includes(day)) todo.fixedDays.push(day); }
+        else { todo.fixedDays = todo.fixedDays.filter(d => d !== day); }
+    }
+
+    triggerDelayTimer(id); // 3번 조건 피드백: 의무요일 개별 수정 시 다른 필터 탭으로 즉시 튕겨나가는 것을 5초 홀딩 보호
+    
     const ref = db.collection("todos").doc(id);
     if(checked) {
         await ref.update({ fixedDays: firebase.firestore.FieldValue.arrayUnion(day) });
     } else {
         await ref.update({ fixedDays: firebase.firestore.FieldValue.arrayRemove(day) });
     }
+    isUpdatingLocally = false;
 }
 
 async function toggleAllFixedDays(id, checked) {
+    isUpdatingLocally = true;
     const weekDays = ['월', '화', '수', '목', '금', '토', '일'];
+    const todo = state.todos.find(t => t.id === id);
+    if(todo) todo.fixedDays = checked ? [...weekDays] : [];
+
+    triggerDelayTimer(id); // 3번 조건 피드백: 의무요일 전체 토글 시 즉시 이탈 현상을 5초 홀딩 보호
+    
     const ref = db.collection("todos").doc(id);
     if(checked) {
         await ref.update({ fixedDays: weekDays });
     } else {
         await ref.update({ fixedDays: [] });
     }
+    isUpdatingLocally = false;
+}
+
+// 3번 피드백: 테이블 내 어떤 칸이든 수정하여 조건 이탈/정렬 대상이 될 때 5초간 현재 행 자리에 붙잡아두는 지연 렌더러 보호 엔진
+function triggerDelayTimer(todoId) {
+    if (delayTimers[todoId]) clearTimeout(delayTimers[todoId]);
+    delayTimers[todoId] = Date.now() + 5000; 
+    
+    setTimeout(() => {
+        delete delayTimers[todoId];
+        renderTodos();
+    }, 5050);
 }
 
 function sendTodayTodoSms() {
@@ -689,11 +874,42 @@ function sendTodayTodoSms() {
     });
 }
 
+function handleSmsRoutingDirect(todoId) {
+    const todo = state.todos.find(t => t.id === todoId);
+    if (!todo) return;
+    const pIds = todo.profileIds || [];
+    if (pIds.length === 0) return alert('할 일이 배정된 사명자가 없습니다.');
+
+    const firstProfile = state.profiles.find(p => p.id === pIds[0]);
+    if (!firstProfile) return;
+
+    let timeValue = "12:00";
+    if (todo.dueDateTime && todo.dueDateTime.includes('T')) {
+        timeValue = todo.dueDateTime.split('T')[1].slice(0, 5);
+    }
+    
+    let baseTemplate = state.smsTemplate || "[5구역 알림] {이름}님, 안내해 드립니다. 기한 {기한}까지 예정된 [{할일}] 미완료 상태입니다.";
+    let msg = baseTemplate
+        .replace(/{이름}/g, firstProfile.name)
+        .replace(/{기한}/g, timeValue)
+        .replace(/{할일}/g, todo.task || "내용없음");
+
+    copyToClipboard(firstProfile.phone, () => {
+        showCuteToastNotification();
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        window.location.href = `sms:${firstProfile.phone}${isIOS ? '&' : '?'}body=${encodeURIComponent(msg)}`;
+    });
+}
+
 function renderTodos() {
     const tbody = document.getElementById('todo-body');
     tbody.innerHTML = '';
 
     let filtered = state.todos.filter(t => {
+        if (delayTimers[t.id] && Date.now() < delayTimers[t.id]) {
+            return true;
+        }
+        
         if(state.currentPartFilter !== '전체보기' && t.part !== state.currentPartFilter) return false;
         if(state.currentDayFilter !== '전체') {
             const hasFixedDays = t.fixedDays && t.fixedDays.length > 0;
@@ -736,9 +952,9 @@ function renderTodos() {
             return `
                 <div style="display:flex; align-items:center; width:100%; gap:4px; margin-bottom:4px;">
                     <label class="item-checkbox-label" style="flex:1; margin-bottom:0;">
-                        <input type="checkbox" ${isAssignedChecked} onchange="toggleTodoProfileSelection('${t.id}', '${p.id}', this.checked)"> ${p.name}
+                        <input type="checkbox" id="assign-${t.id}-${p.id}" ${isAssignedChecked} onchange="toggleTodoProfileSelection('${t.id}', '${p.id}', this.checked)"> ${p.name}
                     </label>
-                    ${doneBoxHtml}
+                    <div id="done-container-${t.id}-${p.id}" style="display:contents;">${doneBoxHtml}</div>
                 </div>
             `;
         }).join('');
@@ -770,13 +986,13 @@ function renderTodos() {
         }
 
         tbody.innerHTML += `
-            <tr class="${rowClass}" style="background-color: ${rowBgColor} !important; color: ${fontColor};">
+            <tr id="row-${t.id}" class="${rowClass}" style="background-color: ${rowBgColor} !important; color: ${fontColor};">
                 <td style="text-align:center; vertical-align: middle;">
                     <input type="checkbox" ${isRowDoneChecked} onchange="handleMainDoneManual('${t.id}', this.checked)" style="transform: scale(1.3); cursor:pointer;">
                     <span class="timer-text" id="countdown-${t.id}"></span>
                 </td>
                 <td>
-                    <select onchange="updateTodoField('${t.id}', 'part', this.value)" style="width:66px;">
+                    <select onchange="changePartField('${t.id}', this.value)" style="width:66px;">
                         <option value="전도" ${t.part==='전도'?'selected':''}>전도</option>
                         <option value="섭외" ${t.part==='섭외'?'selected':''}>섭외</option>
                         <option value="심방" ${t.part==='심방'?'selected':''}>심방</option>
