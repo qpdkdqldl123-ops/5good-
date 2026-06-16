@@ -58,7 +58,6 @@
         }
         select:focus, input:focus { border-color: var(--primary-cute); background-color: #ffffff; }
 
-        /* 🛠️ 기한 칸: 브라우저 고정 '오전/오후' 문구를 지우기 위한 커스텀 24시 슬림 박스 테두리 */
         .time-24h-input-box {
             display: inline-flex;
             align-items: center;
@@ -69,7 +68,7 @@
             padding: 4px 8px;
             width: 76px;
             height: 36px;
-            box-sizing: border-radius;
+            box-sizing: border-box;
             font-size: 12px;
             font-weight: bold;
             color: var(--text-color);
@@ -86,6 +85,11 @@
         .cute-card h3 {
             margin-top: 0; font-size: 15px; color: #8c766c; border-left: 6px solid var(--primary-cute);
             padding-left: 10px; margin-bottom: 12px; display: flex; align-items: center; gap: 4px;
+        }
+
+        .sms-saved-display-box {
+            margin-top: 8px; padding: 12px; background: #fffdfa; border: 2px dashed #ebd9cc; 
+            border-radius: 14px; font-size: 11px; color: #7a6f5d; line-height: 1.5; white-space: pre-wrap; word-break: break-all;
         }
 
         .nav-section { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -112,14 +116,12 @@
             margin-bottom: 18px; border-radius: 22px; box-shadow: 0 5px 0 #e89ba3;
         }
         .btn-danger { background-color: #ff9aa2; color: white; box-shadow: 0 3px 0 #e58284; height: 34px; }
-        .btn-save-jelly { background-color: #baffc9; color: #1e4620; box-shadow: 0 3px 0 #9adba9; margin-left: 4px; }
 
         .table-responsive { 
             overflow-x: auto; border-radius: 20px; border: 3px solid #f6ece2; background: white;
             box-shadow: 0 6px 18px rgba(0,0,0,0.02); -webkit-overflow-scrolling: touch;
         }
         
-        /* 🛠️ 간격 축소 및 높낮이 일렬 정렬 CSS 패키징 */
         table { width: 100%; border-collapse: separate; border-spacing: 0 4px; min-width: 920px; }
         th { background-color: #fff3f5; font-weight: bold; padding: 10px 4px; border-bottom: 3px solid var(--primary-cute); color: #b35660; font-size: 12px; white-space: nowrap; }
         td { padding: 6px 4px; background-color: #ffffff; border-top: 1px solid #fffdfb; border-bottom: 1px solid #fffdfb; font-size: 12px; vertical-align: middle; }
@@ -134,13 +136,7 @@
         .item-checkbox-label { display: flex; align-items: center; gap: 4px; font-size: 11px; margin-bottom: 4px; cursor: pointer; white-space: nowrap; }
         input[type="checkbox"] { accent-color: #ff9aa2; transform: scale(1.1); cursor: pointer; }
 
-        .color-palette {
-            display: none; position: absolute; background: white; border: 2px solid var(--primary-cute); padding: 8px;
-            grid-template-columns: repeat(5, 1fr); gap: 6px; z-index: 100; border-radius: 16px; box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-        }
-        .color-picker-btn { width: 100%; height: 34px; border: 2px solid #ebd9cc; border-radius: 14px; cursor: pointer; font-size: 11px; font-weight: bold; }
-
-        .days-grid-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: 120px; box-sizing: border-box; }
+        .days-grid-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; width: 150px; box-sizing: border-box; }
         .day-checkbox-label { display: inline-flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; background: #fffdfa; padding: 3px 1px; border-radius: 6px; border: 1px solid #ebd9cc; font-weight: bold; }
 
         .draggable-tag {
@@ -167,21 +163,23 @@
 <div class="container">
     <div class="title-container">
         <div style="display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap;">
-            <input type="text" id="checklist-title-input" style="font-size: 18px; font-weight: bold; width: 320px; text-align: center; border-radius: 20px;" placeholder="체크리스트 제목 입력">
-            <button class="btn-action btn-save-jelly" onclick="saveTitleDirect()">💾 제목설정</button>
+            <input type="text" id="checklist-title-input" style="font-size: 18px; font-weight: bold; width: 320px; text-align: center; border-radius: 20px;" placeholder="체크리스트 제목 입력" oninput="saveTitleDirect(this.value)">
         </div>
     </div>
 
     <div class="cute-card">
-        <h3>🏆 중요도 순위 색상 칩</h3>
-        <div class="rank-list" id="rank-settings-container" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+        <h3>✉️ 자동 고정 재촉 문자 양식 세팅</h3>
+        <div style="display: flex; flex-direction: column; width: 100%;">
+            <input type="text" id="sms-template-input" style="width: 100%;" placeholder="양식을 지정해주세요." oninput="saveSmsTemplateDirect(this.value)">
+            <div class="sms-saved-display-box" id="sms-template-display">📋 [현재 저장된 양식 내용]: 불러오는 중...</div>
+        </div>
     </div>
 
     <div class="cute-card">
-        <h3>✉️ 자동 고정 재촉 문자 양식 세팅</h3>
-        <div style="display: flex; width: 100%;">
-            <input type="text" id="sms-template-input" style="flex: 1;" placeholder="양식을 지정해주세요.">
-            <button class="btn-action btn-save-jelly" onclick="saveSmsTemplateDirect()">💾 양식저장</button>
+        <h3>📱 금일 할일 리스트 문자 양식 세팅</h3>
+        <div style="display: flex; flex-direction: column; width: 100%;">
+            <input type="text" id="sms-today-template-input" style="width: 100%;" placeholder="금일 할일 양식을 지정해주세요." oninput="saveSmsTodayTemplateDirect(this.value)">
+            <div class="sms-saved-display-box" id="sms-today-template-display">📋 [현재 저장된 양식 내용]: 불러오는 중...</div>
         </div>
     </div>
 
@@ -209,8 +207,11 @@
     </div>
 
     <div class="nav-section">
-        <span style="font-size:11px; font-weight:bold; color:#7a6f5d; padding-left:4px;">👤 사명자 개별 소팅 필터:</span>
-        <div class="profiles-tabs-container" id="profiles-filter-container"></div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <span style="font-size:11px; font-weight:bold; color:#7a6f5d; padding-left:4px;">👤 사명자 개별 소팅 필터:</span>
+            <button class="btn-action" id="btn-today-todo-sms" style="background-color: #ff9aa2; color: white; display: none; height: 30px; font-size: 11px;" onclick="sendTodayTodoSms()">📱 금일 할일 리스트 문자</button>
+        </div>
+        <div class="profiles-tabs-container" id="profiles-filter-container" style="margin-top: 4px;"></div>
     </div>
 
     <div class="cute-card" style="background:#fff9f9;">
@@ -241,10 +242,10 @@
                     <th width="8%">파트</th>
                     <th width="19%">수신 이름 (중복/개별체크)</th>
                     <th width="9%">기한 (24h)</th>
-                    <th width="17%">할 일 내용</th>
+                    <th width="20%">할 일 내용</th>
                     <th width="11%">📩 문자 전송</th>
-                    <th width="8%">색상</th>
-                    <th width="18%">의무요일</th>
+                    <th width="10%">우선순위</th>
+                    <th width="23%">의무요일</th>
                     <th width="5%">삭제</th>
                 </tr>
             </thead>
@@ -267,12 +268,19 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const rainbowColors = ['#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff', '#c5a3ff', '#e8aeff', '#1a202c', '#ffffff', '#e2e8f0'];
+const priorityColors = {
+    1: '#ffb3ba', // 1순위: 핑크
+    2: '#ffdfba', // 2순위: 오렌지
+    3: '#ffffba', // 3순위: 노랑
+    4: '#baffc9', // 4순위: 연두
+    5: '#bae1ff'  // 5순위: 소다하늘
+};
 
+// 🛠️ 초기 시작 시 빈칸 방지를 위한 기본값 완전 고정 매핑
 let state = {
     title: "5구역 할 수 있다. 하나 된다. 하나님 도와주신다. 회피하지마.",
     smsTemplate: "[5구역 알림] {이름}님, 안내해 드립니다. 기한 {기한}까지 예정된 [{할일}] 미완료 상태입니다. 빠른 확인 부탁드립니다!",
-    rankColors: ['#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff'], 
+    smsTodayTemplate: "[{이름}]님!! 5구역을 위해 오늘 할일 보내드립니다!\n할일 내용/ O, X (체크)",
     profiles: [], 
     todos: [],
     allGroupIds: [], 
@@ -285,6 +293,12 @@ let draggedProfileId = null;
 let activeTimers = {}; 
 
 window.onload = function() {
+    // DB에서 데이터가 날아오기 전에 화면에 기본 세팅 텍스트부터 먼저 채워 보여줌
+    document.getElementById('checklist-title-input').value = state.title;
+    document.getElementById('sms-template-input').value = state.smsTemplate;
+    document.getElementById('sms-today-template-input').value = state.smsTodayTemplate;
+    showSavedTemplatesText();
+
     const todayWeek = getCurrentDayOfWeek();
     state.currentDayFilter = todayWeek;
     const activeDayBtn = document.getElementById(`filter-day-${todayWeek}`);
@@ -293,16 +307,19 @@ window.onload = function() {
     db.collection("config").doc("mainState").onSnapshot((doc) => {
         if (doc.exists()) {
             const data = doc.data();
-            state.title = data.title || state.title;
-            state.rankColors = data.rankColors || state.rankColors;
-            state.smsTemplate = data.smsTemplate || state.smsTemplate;
+            state.title = data.title !== undefined ? data.title : state.title;
+            state.smsTemplate = data.smsTemplate !== undefined ? data.smsTemplate : state.smsTemplate;
+            state.smsTodayTemplate = data.smsTodayTemplate !== undefined ? data.smsTodayTemplate : state.smsTodayTemplate;
             state.allGroupIds = data.allGroupIds || [];
         } else {
             uploadConfig(); 
         }
+        // DB 응답 후 실제 데이터로 업데이트 바인딩
         document.getElementById('checklist-title-input').value = state.title;
         document.getElementById('sms-template-input').value = state.smsTemplate;
-        renderRankSettings();
+        document.getElementById('sms-today-template-input').value = state.smsTodayTemplate;
+        
+        showSavedTemplatesText(); 
         renderAllGroupSetup();
         renderTodos();
     });
@@ -326,45 +343,35 @@ window.onload = function() {
     });
 };
 
+function showSavedTemplatesText() {
+    document.getElementById('sms-template-display').innerText = "📋 [현재 저장된 양식 내용]: " + (state.smsTemplate || "(비어 있음)");
+    document.getElementById('sms-today-template-display').innerText = "📋 [현재 저장된 양식 내용]: " + (state.smsTodayTemplate || "(비어 있음)");
+}
+
 function uploadConfig() {
     db.collection("config").doc("mainState").set({
         title: state.title,
-        rankColors: state.rankColors,
         smsTemplate: state.smsTemplate,
+        smsTodayTemplate: state.smsTodayTemplate,
         allGroupIds: state.allGroupIds
     });
 }
 
-function saveTitleDirect() {
-    const val = document.getElementById('checklist-title-input').value.trim();
-    state.title = val || "5구역 공동 체크리스트";
-    uploadConfig();
-    alert('체크리스트 제목이 영구 저장되었습니다! 🧸');
+function saveTitleDirect(val) {
+    state.title = val;
+    db.collection("config").doc("mainState").update({ title: state.title });
 }
 
-function saveSmsTemplateDirect() {
-    const val = document.getElementById('sms-template-input').value.trim();
+function saveSmsTemplateDirect(val) {
     state.smsTemplate = val;
-    uploadConfig();
-    alert('재촉 문자 기본 고정 양식이 영구 저장되었습니다! ✉️');
+    db.collection("config").doc("mainState").update({ smsTemplate: state.smsTemplate });
+    showSavedTemplatesText(); 
 }
 
-function renderRankSettings() {
-    const container = document.getElementById('rank-settings-container');
-    container.innerHTML = '';
-    for(let i=0; i<5; i++) {
-        container.innerHTML += `
-            <div class="rank-item">
-                <span>${i+1}위</span>
-                <input type="color" value="${state.rankColors[i]}" onchange="updateRankColor(${i}, this.value)">
-            </div>
-        `;
-    }
-}
-
-function updateRankColor(index, color) {
-    state.rankColors[index] = color;
-    uploadConfig();
+function saveSmsTodayTemplateDirect(val) {
+    state.smsTodayTemplate = val;
+    db.collection("config").doc("mainState").update({ smsTodayTemplate: state.smsTodayTemplate });
+    showSavedTemplatesText(); 
 }
 
 function renderProfilesFilter() {
@@ -383,6 +390,13 @@ function filterName(profileId, btn) {
     state.currentNameFilter = profileId;
     document.querySelectorAll('#profiles-filter-container .btn-nav').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    
+    const smsBtn = document.getElementById('btn-today-todo-sms');
+    if (profileId !== '전체') {
+        smsBtn.style.display = 'inline-flex';
+    } else {
+        smsBtn.style.display = 'none';
+    }
     renderTodos();
 }
 
@@ -448,24 +462,6 @@ function toggleAllGroupMember(profileId, checked) {
     uploadConfig();
 }
 
-async function addProfileName() {
-    const nameInp = document.getElementById('new-profile-name');
-    const phoneInp = document.getElementById('new-profile-phone');
-    if(!nameInp.value.trim()) return alert('이름을 써주세요!');
-    let purePhone = phoneInp.value.replace(/[^0-9]/g, "") || "01000000000";
-
-    const newName = nameInp.value.trim();
-    nameInp.value = ''; phoneInp.value = '';
-
-    await db.collection("profiles").add({ name: newName, phone: purePhone, sortOrder: state.profiles.length });
-}
-
-async function deleteProfile(id) {
-    await db.collection("profiles").doc(id).delete();
-    state.allGroupIds = state.allGroupIds.filter(gid => id !== gid);
-    uploadConfig();
-}
-
 async function addNewRow() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -477,7 +473,8 @@ async function addNewRow() {
         checkedProfileIds: [], 
         dueDateTime: now.toISOString().slice(0, 16),
         task: '',
-        bgColor: '#ffffff',
+        priority: 5,
+        bgColor: '#bae1ff',
         fixedDays: [],
         createdDay: getCurrentDayOfWeek(),
         timestamp: Date.now()
@@ -529,7 +526,6 @@ async function handleTodoProfileDoneCheckbox(todoId, profileId, checked) {
     handleRowCheckboxLogic(todoId);
 }
 
-// 🛠️ 1번 요구사항: 개별체크박스가 다 켜지면 메인 완료 칸도 동시 자동 체크 활성화
 async function handleRowCheckboxLogic(todoId) {
     setTimeout(async () => {
         const freshDoc = await db.collection("todos").doc(todoId).get();
@@ -571,7 +567,7 @@ function startRowCountdown(todoId) {
             clearInterval(interval);
             delete activeTimers[todoId];
             if(curSpan) curSpan.innerText = "";
-            await db.collection("todos").doc(todoId).update({ done: true, doneTimestamp: Date.now() });
+            await db.collection("todos").doc(todoId).update({ done: true, doneTimestamp: firebase.firestore.FieldValue.serverTimestamp() });
         }
     }, 1000);
 
@@ -597,22 +593,31 @@ function checkAndCleanOldTodos() {
     const now = Date.now();
 
     state.todos.forEach(async (t) => {
-        if (t.done && t.doneTimestamp && (now - t.doneTimestamp > oneWeekMs)) {
-            const hasFixedDays = t.fixedDays && t.fixedDays.length > 0;
-            if (hasFixedDays) {
-                await db.collection("todos").doc(t.id).update({
-                    done: false,
-                    checkedProfileIds: [], 
-                    doneTimestamp: firebase.firestore.FieldValue.delete()
-                });
-            } else {
-                await db.collection("todos").doc(t.id).delete();
+        if (t.done && t.doneTimestamp) {
+            const docTimestamp = t.doneTimestamp.seconds ? t.doneTimestamp.seconds * 1000 : t.doneTimestamp;
+            if (now - docTimestamp > oneWeekMs) {
+                const hasFixedDays = t.fixedDays && t.fixedDays.length > 0;
+                if (hasFixedDays) {
+                    await db.collection("todos").doc(t.id).update({
+                        done: false,
+                        checkedProfileIds: [], 
+                        doneTimestamp: firebase.firestore.FieldValue.delete()
+                    });
+                } else {
+                    await db.collection("todos").doc(t.id).delete();
+                }
             }
         }
     });
 }
 
-function selectRowColor(todoId, color) { updateTodoField(todoId, 'bgColor', color); }
+function changePriority(todoId, priorityVal) {
+    const pNum = parseInt(priorityVal);
+    db.collection("todos").doc(todoId).update({
+        priority: pNum,
+        bgColor: priorityColors[pNum]
+    });
+}
 
 function filterDay(day, btn) {
     state.currentDayFilter = day;
@@ -637,6 +642,53 @@ async function updateTodoFixedDays(id, day, checked) {
     }
 }
 
+async function toggleAllFixedDays(id, checked) {
+    const weekDays = ['월', '화', '수', '목', '금', '토', '일'];
+    const ref = db.collection("todos").doc(id);
+    if(checked) {
+        await ref.update({ fixedDays: weekDays });
+    } else {
+        await ref.update({ fixedDays: [] });
+    }
+}
+
+function sendTodayTodoSms() {
+    if (state.currentNameFilter === '전체') return;
+    const currentPerson = state.profiles.find(p => p.id === state.currentNameFilter);
+    if (!currentPerson) return;
+
+    let targetTodos = state.todos.filter(t => {
+        if (state.currentPartFilter !== '전체보기' && t.part !== state.currentPartFilter) return false;
+        if (state.currentDayFilter !== '전체') {
+            const hasFixedDays = t.fixedDays && t.fixedDays.length > 0;
+            if (hasFixedDays && !t.fixedDays.includes(state.currentDayFilter)) return false;
+        }
+        return t.profileIds && t.profileIds.includes(currentPerson.id);
+    });
+
+    targetTodos = targetTodos.filter(t => {
+        const isDone = (t.checkedProfileIds && t.checkedProfileIds.includes(currentPerson.id)) || t.done;
+        return !isDone; 
+    });
+
+    if (targetTodos.length === 0) return alert('오늘 해당 사명자의 미완료된 일정이 없습니다.');
+
+    targetTodos.sort((a, b) => (a.priority || 5) - (b.priority || 5));
+
+    let baseTemplate = state.smsTodayTemplate || "[{이름}]님!! 5구역을 위해 오늘 할일 보내드립니다!\n할일 내용/ O, X (체크)";
+    let msg = baseTemplate.replace(/{이름}/g, currentPerson.name) + "\n";
+    
+    targetTodos.forEach((t, index) => {
+        msg += `${index + 1}. [${t.task || '내용없음'}] / \n`;
+    });
+
+    copyToClipboard(currentPerson.phone, () => {
+        showCuteToastNotification();
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        window.location.href = `sms:${currentPerson.phone}${isIOS ? '&' : '?'}body=${encodeURIComponent(msg)}`;
+    });
+}
+
 function renderTodos() {
     const tbody = document.getElementById('todo-body');
     tbody.innerHTML = '';
@@ -652,7 +704,12 @@ function renderTodos() {
     });
 
     filtered.sort((a, b) => {
-        if (a.done === b.done) return (b.timestamp || 0) - (a.timestamp || 0);
+        if (a.done === b.done) {
+            const pA = a.priority || 5;
+            const pB = b.priority || 5;
+            if (pA === pB) return (b.timestamp || 0) - (a.timestamp || 0);
+            return pA - pB;
+        }
         return a.done ? 1 : -1;
     });
 
@@ -686,16 +743,17 @@ function renderTodos() {
             `;
         }).join('');
 
-        let paletteCells = rainbowColors.map(c => `
-            <div style="background:${c}; width:20px; height:20px; cursor:pointer; border:1px solid #555; border-radius:4px;" onclick="selectRowColor('${t.id}', '${c}')"></div>
-        `).join('');
-
         const isRowDoneChecked = t.done ? 'checked' : '';
         const rowClass = t.done ? 'completed-row' : '';
-        const fontColor = (t.bgColor === '#1a202c') ? '#fff' : '#65534c';
+        const currentPriority = t.priority || 5;
+        const fontColor = '#65534c';
+        const rowBgColor = priorityColors[currentPriority] || '#bae1ff';
 
         const weekDays = ['월', '화', '수', '목', '금', '토', '일'];
-        let dayCheckboxes = weekDays.map(d => {
+        const isAllDaysChecked = weekDays.every(d => t.fixedDays && t.fixedDays.includes(d)) ? 'checked' : '';
+        
+        let dayCheckboxes = `<label class="day-checkbox-label"><input type="checkbox" ${isAllDaysChecked} onchange="toggleAllFixedDays('${t.id}', this.checked)"> 전체</label>`;
+        dayCheckboxes += weekDays.map(d => {
             const isDayChecked = (t.fixedDays && t.fixedDays.includes(d)) ? 'checked' : '';
             return `
                 <label class="day-checkbox-label">
@@ -704,7 +762,6 @@ function renderTodos() {
             `;
         }).join('');
 
-        // 🛠️ 2번 요구사항: 오전/오후 글자를 완벽히 배제하고 강제로 24시간 표기법 고정 가공
         let timeOnlyValue = "12:00";
         if (t.dueDateTime && t.dueDateTime.includes('T')) {
             timeOnlyValue = t.dueDateTime.split('T')[1].slice(0, 5); 
@@ -712,9 +769,8 @@ function renderTodos() {
             timeOnlyValue = t.dueDateTime;
         }
 
-        // 🛠️ 3번 요구사항: 어긋남 없이 깔끔한 일렬 정렬 및 간격 초압축 매핑 완료
         tbody.innerHTML += `
-            <tr class="${rowClass}" style="background-color: ${t.bgColor}; color: ${fontColor};">
+            <tr class="${rowClass}" style="background-color: ${rowBgColor} !important; color: ${fontColor};">
                 <td style="text-align:center; vertical-align: middle;">
                     <input type="checkbox" ${isRowDoneChecked} onchange="handleMainDoneManual('${t.id}', this.checked)" style="transform: scale(1.3); cursor:pointer;">
                     <span class="timer-text" id="countdown-${t.id}"></span>
@@ -732,15 +788,18 @@ function renderTodos() {
                     <div class="time-24h-input-box" onclick="document.getElementById('raw-time-${t.id}').showPicker()">${timeOnlyValue}</div>
                     <input type="time" id="raw-time-${t.id}" class="time-24h-hidden" value="${timeOnlyValue}" onchange="saveTimeOnlyValue('${t.id}', this.value)">
                 </td>
-                <td><input type="text" value="${t.task || ''}" style="color:${fontColor}; background:transparent; width:125px;" placeholder="할 일 적기" onchange="updateTodoField('${t.id}', 'task', this.value)"></td>
+                <td><input type="text" value="${t.task || ''}" style="color:${fontColor}; background:transparent; width:145px;" placeholder="할 일 적기" onchange="updateTodoField('${t.id}', 'task', this.value)"></td>
                 <td>
                     <button class="btn-action btn-sms" style="height:34px; font-size:11px; padding:0 6px;" onclick="handleSmsRoutingDirect('${t.id}')">🚀 즉시재촉</button>
                 </td>
                 <td>
-                    <div style="position:relative; width:62px;">
-                        <button class="color-picker-btn" style="background:${t.bgColor}; color:${fontColor};" onclick="toggleColorPalette('${t.id}')">🎨 색상</button>
-                        <div class="color-palette" id="palette-${t.id}">${paletteCells}</div>
-                    </div>
+                    <select onchange="changePriority('${t.id}', this.value)" style="width:75px;">
+                        <option value="1" ${currentPriority===1?'selected':''}>1 우선순위</option>
+                        <option value="2" ${currentPriority===2?'selected':''}>2 우선순위</option>
+                        <option value="3" ${currentPriority===3?'selected':''}>3 우선순위</option>
+                        <option value="4" ${currentPriority===4?'selected':''}>4 우선순위</option>
+                        <option value="5" ${currentPriority===5?'selected':''}>5 우선순위</option>
+                    </select>
                 </td>
                 <td><div class="days-grid-box">${dayCheckboxes}</div></td>
                 <td><button class="btn-action btn-danger" style="height:32px; padding:0 6px;" onclick="deleteTodo('${t.id}')">삭제</button></td>
@@ -755,77 +814,22 @@ function saveTimeOnlyValue(todoId, timeStr) {
     updateTodoField(todoId, 'dueDateTime', todayStr + "T" + timeStr);
 }
 
-function renderBulkSmsProfileBox() {
-    const box = document.getElementById('bulk-sms-profiles-box');
-    box.innerHTML = state.profiles.map(p => `
-        <label class="item-checkbox-label">
-            <input type="checkbox" class="bulk-receiver-chk" value="${p.id}"> ${p.name}
-        </label>
-    `).join('');
+async function addProfileName() {
+    const nameInp = document.getElementById('new-profile-name');
+    const phoneInp = document.getElementById('new-profile-phone');
+    if(!nameInp.value.trim()) return alert('이름을 써주세요!');
+    let purePhone = phoneInp.value.replace(/[^0-9]/g, "") || "01000000000";
+
+    const newName = nameInp.value.trim();
+    nameInp.value = ''; phoneInp.value = '';
+
+    await db.collection("profiles").add({ name: newName, phone: purePhone, sortOrder: state.profiles.length });
 }
 
-function makeSmsMessageText(todo, targets) {
-    let fmt = state.smsTemplate;
-    let names = targets.map(p => p.name).join(', ');
-    let timeStr = "";
-    if(todo.dueDateTime && todo.dueDateTime.includes('T')) {
-        timeStr = todo.dueDateTime.split('T')[1].slice(0,5);
-    } else {
-        timeStr = todo.dueDateTime || "";
-    }
-    return fmt.replace(/{이름}/g, names).replace(/{기한}/g, timeStr).replace(/{할일}/g, todo.task || "(내용없음)");
-}
-
-function handleSmsRoutingDirect(todoId) {
-    const todo = state.todos.find(t => t.id === todoId);
-    if(!todo || !todo.profileIds || todo.profileIds.length === 0) return alert('대상을 선택해 주세요!');
-
-    const targetPeople = state.profiles.filter(p => todo.profileIds.includes(p.id));
-    const resultMessage = makeSmsMessageText(todo, targetPeople);
-    
-    // 번호들이 한꺼번에 콤마(,) 형태로 복사되어 전달
-    const phonesCombined = targetPeople.map(p => p.phone).join(',');
-
-    copyToClipboard(phonesCombined, () => {
-        showCuteToastNotification();
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        window.location.href = `sms:${phonesCombined}${isIOS ? '&' : '?'}body=${encodeURIComponent(resultMessage)}`;
-    });
-}
-
-function fireBulkSmsDirect(type) {
-    const checkedBoxes = document.querySelectorAll('.bulk-receiver-chk:checked');
-    if(checkedBoxes.length === 0) return alert('대상을 선택해 주세요.');
-    const textContent = document.getElementById('bulk-sms-content').value.trim();
-    if(!textContent) return alert('문자 내용을 입력해 주세요.');
-
-    const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
-    const targetPeople = state.profiles.filter(p => selectedIds.includes(p.id));
-    const phonesCombined = targetPeople.map(p => p.phone).join(',');
-
-    copyToClipboard(phonesCombined, () => {
-        showCuteToastNotification();
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        window.location.href = `sms:${phonesCombined}${isIOS ? '&' : '?'}body=${encodeURIComponent(textContent)}`;
-    });
-}
-
-function showCuteToastNotification() {
-    const toast = document.getElementById('cute-toast-alarm');
-    toast.style.display = 'block';
-    toast.style.opacity = '1';
-    
-    setTimeout(() => {
-        let opacity = 1;
-        const fadeInterval = setInterval(() => {
-            opacity -= 0.1;
-            toast.style.opacity = opacity;
-            if(opacity <= 0) {
-                clearInterval(fadeInterval);
-                toast.style.display = 'none';
-            }
-        }, 30);
-    }, 1200); 
+async function deleteProfile(id) {
+    await db.collection("profiles").doc(id).delete();
+    state.allGroupIds = state.allGroupIds.filter(gid => id !== gid);
+    uploadConfig();
 }
 
 function copyToClipboard(text, callback) {
@@ -866,23 +870,26 @@ function fallbackCopy(text, callback) {
     document.body.removeChild(textArea);
 }
 
-function toggleColorPalette(id) {
-    const palette = document.getElementById(`palette-${id}`);
-    if(palette.style.display === 'grid') {
-        palette.style.display = 'none';
-    } else {
-        document.querySelectorAll('.color-palette').forEach(p => p.style.display = 'none');
-        palette.style.display = 'grid';
-    }
-}
-
-function closeModal() {
-    document.getElementById('modal-overlay').style.display = 'none';
-    document.getElementById('sms-modal').style.display = 'none';
+function showCuteToastNotification() {
+    const toast = document.getElementById('cute-toast-alarm');
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    
+    setTimeout(() => {
+        let opacity = 1;
+        const fadeInterval = setInterval(() => {
+            opacity -= 0.1;
+            toast.style.opacity = opacity;
+            if(opacity <= 0) {
+                clearInterval(fadeInterval);
+                toast.style.display = 'none';
+            }
+        }, 30);
+    }, 1200); 
 }
 
 function getCurrentDayOfWeek() {
-    const week = ['일', '월', '화', '수', '목', '금', '토'];
+    const week = ['일', '월', '화', '수', '목', '금', '토', '일'];
     return week[new Date().getDay()];
 }
 </script>
