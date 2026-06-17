@@ -83,7 +83,7 @@
             margin-bottom: 18px; box-shadow: 0 6px 14px rgba(93, 80, 74, 0.04); box-sizing: border-box;
         }
         .cute-card h3 {
-            margin-top: 0; font-size: 15px; color: #8c766c; border-left: 6px solid var(--primary-cute);
+            margin-top: 0; font-size: 15px; color: #65534c; border-left: 6px solid var(--primary-cute);
             padding-left: 10px; margin-bottom: 12px; display: flex; align-items: center; gap: 4px;
         }
 
@@ -211,7 +211,7 @@
             <button class="btn-nav" onclick="filterPart('전도', this)">전도</button>
             <button class="btn-nav" onclick="filterPart('섭외', this)">섭외</button>
             <button class="btn-nav" onclick="filterPart('심방', this)">심방</button>
-            <button class="btn-nav" onclick="filterPart('기타', this)">기타</button>
+            <button class="btn-nav" onclick="filterPart('교육', this)">교육</button>
         </div>
     </div>
 
@@ -278,13 +278,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 4번 피드백: 우선순위 배경 구분이 아주 명확하도록 고대비 파스텔 색상으로 최적 보정
 const priorityColors = {
-    1: '#ffa6b9', // 1우선순위: 눈에 확 띄는 선명한 핑크
-    2: '#ffca85', // 2우선순위: 진한 귤색 오렌지
-    3: '#fff980', // 3우선순위: 밝은 레몬 노랑
-    4: '#9effb7', // 4우선순위: 선명한 민트 그린
-    5: '#99d6ff'  // 5우선순위: 청량한 소다 블루
+    1: '#ffa6b9', 
+    2: '#ffca85', 
+    3: '#fff980', 
+    4: '#9effb7', 
+    5: '#99d6ff'  
 };
 
 let state = {
@@ -304,7 +303,7 @@ let activeTimers = {};
 
 let renderTimer = null;
 let isUpdatingLocally = false; 
-let delayTimers = {}; // 3번 피드백: 칸 이동 제어용 5초 세션 타이머 객체
+let delayTimers = {}; 
 
 function requestRenderTodos() {
     if (isUpdatingLocally) return; 
@@ -320,20 +319,26 @@ window.onload = function() {
     const activeDayBtn = document.getElementById(`filter-day-${todayWeek}`);
     if(activeDayBtn) activeDayBtn.classList.add('active');
 
+    document.getElementById('checklist-title-input').value = state.title;
+    document.getElementById('sms-template-input').value = state.smsTemplate;
+    document.getElementById('sms-today-template-input').value = state.smsTodayTemplate;
+    showSavedTemplatesText();
+
     db.collection("config").doc("mainState").onSnapshot((doc) => {
         if (doc.exists()) {
             const data = doc.data();
-            state.title = data.title !== undefined ? data.title : state.title;
-            state.smsTemplate = data.smsTemplate !== undefined ? data.smsTemplate : state.smsTemplate;
-            state.smsTodayTemplate = data.smsTodayTemplate !== undefined ? data.smsTodayTemplate : state.smsTodayTemplate;
+            if (data.title !== undefined) state.title = data.title;
+            if (data.smsTemplate !== undefined) state.smsTemplate = data.smsTemplate;
+            if (data.smsTodayTemplate !== undefined) state.smsTodayTemplate = data.smsTodayTemplate;
             state.allGroupIds = data.allGroupIds || [];
         }
+        
         document.getElementById('checklist-title-input').value = state.title;
         document.getElementById('sms-template-input').value = state.smsTemplate;
         document.getElementById('sms-today-template-input').value = state.smsTodayTemplate;
         
         showSavedTemplatesText(); 
-        renderAllGroupSetup();
+        renderAllGroupSetup(); 
         requestRenderTodos();
     });
 
@@ -344,13 +349,17 @@ window.onload = function() {
         
         renderProfiles();
         renderProfilesFilter();
-        renderAllGroupSetup();
+        renderAllGroupSetup(); 
         requestRenderTodos();
     });
 
     db.collection("todos").onSnapshot((snapshot) => {
         let tempTodos = [];
-        snapshot.forEach(doc => tempTodos.push({id: doc.id, ...doc.data()}));
+        snapshot.forEach(doc => {
+            let data = doc.data();
+            if (data.part === '기타') data.part = '교육';
+            tempTodos.push({id: doc.id, ...data});
+        });
         
         if (isUpdatingLocally) {
             tempTodos.forEach(remoteTodo => {
@@ -361,6 +370,7 @@ window.onload = function() {
                     remoteTodo.part = localTodo.part;
                     remoteTodo.priority = localTodo.priority;
                     remoteTodo.fixedDays = localTodo.fixedDays;
+                    remoteTodo.bgColor = localTodo.bgColor;
                 }
             });
         }
@@ -371,7 +381,6 @@ window.onload = function() {
     });
 };
 
-// 2번 피드백: 현재 저장된 양식 디스플레이 및 실제 전송 예시 문구 동적 결합 출력 구현
 function showSavedTemplatesText() {
     document.getElementById('sms-template-display').innerText = "📋 [현재 저장된 양식 내용]: " + (state.smsTemplate || "(비어 있음)");
     document.getElementById('sms-today-template-display').innerText = "📋 [현재 저장된 양식 내용]: " + (state.smsTodayTemplate || "(비어 있음)");
@@ -383,15 +392,14 @@ function showSavedTemplatesText() {
     document.getElementById('sms-template-preview').innerText = "💬 [실제 발송 예시]: " + preview1;
 
     let preview2 = (state.smsTodayTemplate || "")
-        .replace(/{이름}/g, "홍길동") + "\n1. [전도 구역 모임 참석] /\n2. [새가족 심방 가이드 체크] /";
+        .replace(/{이름}/g, "홍길동") + "\n\n[전도]\n할일내용 /\n\n[심방]\n할일내용 /";
     document.getElementById('sms-today-template-preview').innerText = "💬 [실제 발송 예시]:\n" + preview2;
 }
 
-// 개별 요소 명시적 독립 영구 저장 버튼 바인딩 함수들
 function saveTitleDirect() {
     const val = document.getElementById('checklist-title-input').value;
     state.title = val;
-    db.collection("config").doc("mainState").update({ title: state.title }).then(() => {
+    db.collection("config").doc("mainState").set({ title: state.title }, { merge: true }).then(() => {
         alert('체크리스트 제목이 영구 저장되었습니다! 🧸');
     });
 }
@@ -399,7 +407,7 @@ function saveTitleDirect() {
 function saveSmsTemplateDirect() {
     const val = document.getElementById('sms-template-input').value;
     state.smsTemplate = val;
-    db.collection("config").doc("mainState").update({ smsTemplate: state.smsTemplate }).then(() => {
+    db.collection("config").doc("mainState").set({ smsTemplate: state.smsTemplate }, { merge: true }).then(() => {
         showSavedTemplatesText();
         alert('재촉 문자 양식이 파이어베이스 백엔드에 안전하게 고정 저장되었습니다! ✉️');
     });
@@ -408,16 +416,26 @@ function saveSmsTemplateDirect() {
 function saveSmsTodayTemplateDirect() {
     const val = document.getElementById('sms-today-template-input').value;
     state.smsTodayTemplate = val;
-    db.collection("config").doc("mainState").update({ smsTodayTemplate: state.smsTodayTemplate }).then(() => {
+    db.collection("config").doc("mainState").set({ smsTodayTemplate: state.smsTodayTemplate }, { merge: true }).then(() => {
         showSavedTemplatesText();
         alert('금일 할 일 리스트 문자 양식이 안전하게 고정 저장되었습니다! 📱');
     });
 }
 
 function saveAllGroupSetupDirect() {
-    db.collection("config").doc("mainState").update({ allGroupIds: state.allGroupIds }).then(() => {
+    db.collection("config").doc("mainState").set({ allGroupIds: state.allGroupIds }, { merge: true }).then(() => {
         alert('🌟 사명자 all 파일 세팅(그룹원 지정 현황)이 안정적으로 영구 저장되었습니다!');
     });
+}
+
+function toggleAllGroupMember(profileId, checked) {
+    if (checked) {
+        if (!state.allGroupIds.includes(profileId)) {
+            state.allGroupIds.push(profileId);
+        }
+    } else {
+        state.allGroupIds = state.allGroupIds.filter(id => id !== profileId);
+    }
 }
 
 function renderProfilesFilter() {
@@ -523,6 +541,7 @@ async function dropProfile(e) {
 
 function renderAllGroupSetup() {
     const box = document.getElementById('all-group-setup-box');
+    if (!box) return;
     box.innerHTML = state.profiles.map(p => {
         const isChecked = state.allGroupIds.includes(p.id) ? 'checked' : '';
         return `
@@ -531,14 +550,6 @@ function renderAllGroupSetup() {
             </label>
         `;
     }).join('');
-}
-
-function toggleAllGroupMember(profileId, checked) {
-    if (checked) {
-        if (!state.allGroupIds.includes(profileId)) state.allGroupIds.push(profileId);
-    } else {
-        state.allGroupIds = state.allGroupIds.filter(id => id !== profileId);
-    }
 }
 
 async function addNewRow() {
@@ -570,7 +581,6 @@ async function deleteTodo(id) {
     await db.collection("todos").doc(id).delete();
 }
 
-// 3번 피드백: 파트(분류)를 수정할 때도 5초 동안 튕김 없이 행을 유지하도록 스크립트 결합
 async function changePartField(id, val) {
     isUpdatingLocally = true;
     const todo = state.todos.find(t => t.id === id);
@@ -623,7 +633,7 @@ async function toggleTodoProfileSelection(todoId, profileId, checked) {
         }
     }
 
-    triggerDelayTimer(todoId); // 3번 피드백: 수신자 체크 해제 시 즉시 탈출 차단용 5초 락
+    triggerDelayTimer(todoId); 
 
     if (profileId === 'ALL_GROUP') {
         if (checked) {
@@ -646,7 +656,7 @@ async function toggleTodoProfileSelection(todoId, profileId, checked) {
     isUpdatingLocally = false;
 }
 
-async function handleTodoProfileDoneCheckbox(todoId, profileId, checked) {
+async function toggleTodoProfileDoneCheckbox(todoId, profileId, checked) {
     isUpdatingLocally = true;
     const ref = db.collection("todos").doc(todoId);
     const todo = state.todos.find(t => t.id === todoId);
@@ -725,7 +735,7 @@ function handleMainDoneManual(todoId, checked) {
             delete activeTimers[todoId];
         }
         db.collection("todos").doc(todoId).update({ done: false, doneTimestamp: firebase.firestore.FieldValue.delete() });
-        const timerSpan = document.getElementById(`countdown-${todoId}`);
+        const timerSpan = document.getElementById('countdown-' + todoId);
         if(timerSpan) timerSpan.innerText = "";
     }
 }
@@ -753,24 +763,33 @@ function checkAndCleanOldTodos() {
     });
 }
 
-// 1번 및 3번 피드백: 우선순위 실시간 동적 스위칭 색상 부여 제어 로직 및 5초 홀딩 락 연계
+// 🌟 [오타 및 로직 반영 완료] changePriority 함수 내 매개변수 오타(id -> todoId) 수정 및 로컬 동기화 보완
 async function changePriority(todoId, priorityVal) {
     isUpdatingLocally = true;
     const pNum = parseInt(priorityVal);
+    const chosenColor = priorityColors[pNum] || '#ffffff';
+    
+    // 오타 수정: id를 todoId로 정확히 매칭시켜 상태 업데이트
     const todo = state.todos.find(t => t.id === todoId);
-    if(todo) todo.priority = pNum;
-
-    triggerDelayTimer(todoId); // 3번 조건 피드백: 우선순위 클릭 변경 시 5초 홀딩 락
+    if(todo) {
+        todo.priority = pNum;
+        todo.bgColor = chosenColor;
+    }
 
     const targetRow = document.getElementById(`row-${todoId}`);
     if (targetRow) {
-        targetRow.style.backgroundColor = priorityColors[pNum];
+        if (todo && todo.done) {
+            targetRow.style.setProperty('background-color', '#ffffff', 'important');
+        } else {
+            targetRow.style.setProperty('background-color', chosenColor, 'important');
+        }
     }
 
     await db.collection("todos").doc(todoId).update({
         priority: pNum,
-        bgColor: priorityColors[pNum]
+        bgColor: chosenColor
     });
+    
     isUpdatingLocally = false;
 }
 
@@ -798,7 +817,7 @@ async function updateTodoFixedDays(id, day, checked) {
         else { todo.fixedDays = todo.fixedDays.filter(d => d !== day); }
     }
 
-    triggerDelayTimer(id); // 3번 조건 피드백: 의무요일 개별 수정 시 다른 필터 탭으로 즉시 튕겨나가는 것을 5초 홀딩 보호
+    triggerDelayTimer(id); 
     
     const ref = db.collection("todos").doc(id);
     if(checked) {
@@ -815,7 +834,8 @@ async function toggleAllFixedDays(id, checked) {
     const todo = state.todos.find(t => t.id === id);
     if(todo) todo.fixedDays = checked ? [...weekDays] : [];
 
-    triggerDelayTimer(id); // 3번 조건 피드백: 의무요일 전체 토글 시 즉시 이탈 현상을 5초 홀딩 보호
+    renderTodos();
+    triggerDelayTimer(id); 
     
     const ref = db.collection("todos").doc(id);
     if(checked) {
@@ -826,7 +846,6 @@ async function toggleAllFixedDays(id, checked) {
     isUpdatingLocally = false;
 }
 
-// 3번 피드백: 테이블 내 어떤 칸이든 수정하여 조건 이탈/정렬 대상이 될 때 5초간 현재 행 자리에 붙잡아두는 지연 렌더러 보호 엔진
 function triggerDelayTimer(todoId) {
     if (delayTimers[todoId]) clearTimeout(delayTimers[todoId]);
     delayTimers[todoId] = Date.now() + 5000; 
@@ -858,14 +877,22 @@ function sendTodayTodoSms() {
 
     if (targetTodos.length === 0) return alert('오늘 해당 사명자의 미완료된 일정이 없습니다.');
 
-    targetTodos.sort((a, b) => (a.priority || 5) - (b.priority || 5));
+    const partsCategory = ['전도', '섭외', '심방', '교육'];
+    let groupedMsgSection = '';
+
+    partsCategory.forEach(category => {
+        const matchTodos = targetTodos.filter(t => t.part === category);
+        if (matchTodos.length > 0) {
+            matchTodos.sort((a, b) => (a.priority || 5) - (b.priority || 5));
+            groupedMsgSection += `\n[${category}]\n`;
+            matchTodos.forEach(t => {
+                groupedMsgSection += `${t.task || '내용없음'} /\n`;
+            });
+        }
+    });
 
     let baseTemplate = state.smsTodayTemplate || "[{이름}]님!! 5구역을 위해 오늘 할일 보내드립니다!\n할일 내용/ O, X (체크)";
-    let msg = baseTemplate.replace(/{이름}/g, currentPerson.name) + "\n";
-    
-    targetTodos.forEach((t, index) => {
-        msg += `${index + 1}. [${t.task || '내용없음'}] / \n`;
-    });
+    let msg = baseTemplate.replace(/{이름}/g, currentPerson.name) + "\n" + groupedMsgSection;
 
     copyToClipboard(currentPerson.phone, () => {
         showCuteToastNotification();
@@ -903,7 +930,7 @@ function handleSmsRoutingDirect(todoId) {
 
 function renderTodos() {
     const tbody = document.getElementById('todo-body');
-    tbody.innerHTML = '';
+    let finalHtml = ''; 
 
     let filtered = state.todos.filter(t => {
         if (delayTimers[t.id] && Date.now() < delayTimers[t.id]) {
@@ -947,7 +974,7 @@ function renderTodos() {
             const isDoneChecked = tCheckedIds.includes(p.id) ? 'checked' : '';
             
             const doneBoxHtml = isAssigned ? 
-                `<input type="checkbox" ${isDoneChecked} title="완료" onchange="handleTodoProfileDoneCheckbox('${t.id}', '${p.id}', this.checked)" style="margin-left:auto; accent-color: #4ade80;">` : '';
+                `<input type="checkbox" ${isDoneChecked} title="완료" onchange="toggleTodoProfileDoneCheckbox('${t.id}', '${p.id}', this.checked)" style="margin-left:auto; accent-color: #4ade80;">` : '';
 
             return `
                 <div style="display:flex; align-items:center; width:100%; gap:4px; margin-bottom:4px;">
@@ -963,7 +990,12 @@ function renderTodos() {
         const rowClass = t.done ? 'completed-row' : '';
         const currentPriority = t.priority || 5;
         const fontColor = '#65534c';
-        const rowBgColor = priorityColors[currentPriority] || '#bae1ff';
+        
+        // 🌟 [로직 마킹 타이밍 보완] DB나 상태에bgColor가 저장되어 있다면 새 화면을 그릴 때 최우선적으로 적용되도록 처리했습니다.
+        let rowBgColor = '#ffffff'; 
+        if (!t.done) {
+            rowBgColor = t.bgColor || priorityColors[currentPriority] || '#ffffff';
+        }
 
         const weekDays = ['월', '화', '수', '목', '금', '토', '일'];
         const isAllDaysChecked = weekDays.every(d => t.fixedDays && t.fixedDays.includes(d)) ? 'checked' : '';
@@ -985,7 +1017,7 @@ function renderTodos() {
             timeOnlyValue = t.dueDateTime;
         }
 
-        tbody.innerHTML += `
+        finalHtml += `
             <tr id="row-${t.id}" class="${rowClass}" style="background-color: ${rowBgColor} !important; color: ${fontColor};">
                 <td style="text-align:center; vertical-align: middle;">
                     <input type="checkbox" ${isRowDoneChecked} onchange="handleMainDoneManual('${t.id}', this.checked)" style="transform: scale(1.3); cursor:pointer;">
@@ -996,7 +1028,7 @@ function renderTodos() {
                         <option value="전도" ${t.part==='전도'?'selected':''}>전도</option>
                         <option value="섭외" ${t.part==='섭외'?'selected':''}>섭외</option>
                         <option value="심방" ${t.part==='심방'?'selected':''}>심방</option>
-                        <option value="기타" ${t.part==='기타'?'selected':''}>기타</option>
+                        <option value="교육" ${t.part==='교육'?'selected':''}>교육</option>
                     </select>
                 </td>
                 <td><div class="checkbox-scroll-box" style="width:130px;">${profileCheckboxes}</div></td>
@@ -1022,6 +1054,8 @@ function renderTodos() {
             </tr>
         `;
     });
+
+    tbody.innerHTML = finalHtml;
 }
 
 function saveTimeOnlyValue(todoId, timeStr) {
@@ -1045,7 +1079,7 @@ async function addProfileName() {
 async function deleteProfile(id) {
     await db.collection("profiles").doc(id).delete();
     state.allGroupIds = state.allGroupIds.filter(gid => id !== gid);
-    uploadConfig();
+    db.collection("config").doc("mainState").set({ allGroupIds: state.allGroupIds }, { merge: true });
 }
 
 function copyToClipboard(text, callback) {
